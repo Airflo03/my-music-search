@@ -1,44 +1,80 @@
-import json
 import math
-import os
 from flask import Flask, render_template, request
+import requests
 
 app = Flask(__name__)
 
-# Track the absolute path to your curated media json file
-JSON_PATH = os.path.join(os.path.dirname(__file__), 'media_data.json')
+# A public, machine-ready meta-search index instance that accepts data centre traffic
+SEARXNG_INSTANCE = "https://crit.ch"
 
-def fetch_live_search(query):
-    """Parses local high-fidelity JSON arrays to safely simulate 500 rows with valid targets."""
-    if not os.path.exists(JSON_PATH):
-        return []
-        
+def fetch_live_media_search(query):
+    """
+    Queries an open meta-search engine to find live video and audio matches
+    across YouTube, SoundCloud, and other streaming websites.
+    """
+    params = {
+        "q": query,
+        "format": "json",
+        "categories": "videos,music", # Limit results specifically to media streams
+        "pageno": 1
+    }
+    
+    headers = {
+        "User-Agent": "MediaSearchDashboard/2.0 (contact: admin@example.com; Educational Application)"
+    }
+    
     try:
-        with open(JSON_PATH, 'r', encoding='utf-8') as f:
-            data = json.load(f)
+        # Request data from the meta-search aggregator
+        response = requests.get(SEARXNG_INSTANCE, params=params, headers=headers, timeout=10)
+        if response.status_code != 200:
+            return []
             
-        audio_items = data.get("audio", [])
-        video_items = data.get("video", [])
-        general_items = data.get("general", [])
+        data = response.json()
+        raw_results = data.get("results", [])
         
-        all_templates = audio_items + video_items + general_items
         parsed_results = []
-        
-        # Build 500 total elements using the valid templates
-        for i in range(1, 501):
-            # Rotate cleanly through the templates array
-            template = all_templates[(i - 1) % len(all_templates)]
+        for item in raw_results:
+            title = item.get("title", "")
+            href = item.get("url", "#")
+            body = item.get("content", "No description available.")
             
+            media_type = None
+            media_url = None
+            
+            # --- DETECT MEDIA PLATFORMS & EXTRACT EMBED PARAMS ---
+            # 1. YouTube Video Context Handling
+            if "youtube.com" in href or "youtu.be" in href:
+                media_type = "youtube"
+                # Convert a standard watch URL into an embeddable format
+                if "v=" in href:
+                    video_id = href.split("v=")[1].split("&")[0]
+                    media_url = f"https://youtube.com{video_id}"
+                elif "youtu.be/" in href:
+                    video_id = href.split("youtu.be/")[1].split("?")[0]
+                    media_url = f"https://youtube.com{video_id}"
+            
+            # 2. General Audio / Podcast File Stream Handling
+            elif any(ext in href.lower() or ext in body.lower() for ext in [".mp3", ".ogg", "soundcloud", "podcast"]):
+                media_type = "audio"
+                # If an explicit file path isn't exposed, use a stable public domain testing fallback track
+                media_url = item.get("audio_link", "https://soundhelix.com")
+            
+            # 3. Alternative Video Handling (Vimeo, Dailymotion, etc.)
+            elif any(ext in href.lower() for ext in ["vimeo.com", "dailymotion.com", ".mp4"]):
+                media_type = "video_file"
+                media_url = href if href.endswith(".mp4") else "https://googleapis.com"
+
             parsed_results.append({
-                'title': f"{template['title']} (Result #{i})",
-                'href': template['href'], # Real working URL destination
-                'body': f"[Query: {query}] {template['body']}",
-                'media_type': template['media_type'],
-                'media_url': template['media_url']
+                'title': title,
+                'href': href,
+                'body': body,
+                'media_type': media_type,
+                'media_url': media_url
             })
+            
         return parsed_results
     except Exception as e:
-        print(f"File reading issue: {e}")
+        print(f"Meta-Search Engine error: {e}")
         return []
 
 @app.route('/', methods=['GET'])
@@ -60,7 +96,7 @@ def search_page():
     current_end = 0
 
     if query:
-        raw_results = fetch_live_search(query)
+        raw_results = fetch_live_media_search(query)
         total_items = len(raw_results)
         
         if total_items > 0:
