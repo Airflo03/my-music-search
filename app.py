@@ -1,39 +1,45 @@
+import json
 import math
+import os
 from flask import Flask, render_template, request
 
 app = Flask(__name__)
 
+# Track the absolute path to your curated media json file
+JSON_PATH = os.path.join(os.path.dirname(__file__), 'media_data.json')
+
 def fetch_live_search(query):
-    """
-    Generates a flawless, high-volume simulated index of up to 500 records.
-    Bypasses data centre rate limits completely, keeping players active 24/7.
-    """
-    if not query:
+    """Parses local high-fidelity JSON arrays to safely simulate 500 rows with valid targets."""
+    if not os.path.exists(JSON_PATH):
         return []
         
-    parsed_results = []
-    # Generates up to 500 records to support the massive multi-page loop
-    for i in range(1, 501):
-        media_type = None
-        media_url = None
-        
-        # Injects live audio links on every 5th item for testing
-        if i % 5 == 1:
-            media_type = "audio"
-            media_url = "https://soundhelix.com"
-        # Injects live video links on every 5th item for testing
-        elif i % 5 == 3:
-            media_type = "video"
-            media_url = "https://googleapis.com"
+    try:
+        with open(JSON_PATH, 'r', encoding='utf-8') as f:
+            data = json.load(f)
             
-        parsed_results.append({
-            'title': f"Scraped Media Article #{i} regarding '{query}'",
-            'href': f"https://example.com{i}",
-            'body': f"This is an hourly-cached document description tracking your entry keyword row details for '{query}'. Media streaming parameters are loaded natively inside the card layer.",
-            'media_type': media_type,
-            'media_url': media_url
-        })
-    return parsed_results
+        audio_items = data.get("audio", [])
+        video_items = data.get("video", [])
+        general_items = data.get("general", [])
+        
+        all_templates = audio_items + video_items + general_items
+        parsed_results = []
+        
+        # Build 500 total elements using the valid templates
+        for i in range(1, 501):
+            # Rotate cleanly through the templates array
+            template = all_templates[(i - 1) % len(all_templates)]
+            
+            parsed_results.append({
+                'title': f"{template['title']} (Result #{i})",
+                'href': template['href'], # Real working URL destination
+                'body': f"[Query: {query}] {template['body']}",
+                'media_type': template['media_type'],
+                'media_url': template['media_url']
+            })
+        return parsed_results
+    except Exception as e:
+        print(f"File reading issue: {e}")
+        return []
 
 @app.route('/', methods=['GET'])
 def search_page():

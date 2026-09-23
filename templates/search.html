@@ -195,26 +195,38 @@
             </div>
         </div>
 
+        <!-- Completely Restructured Media-Safe Layout -->
         <div class="results-container">
             {% for item in results %}
-                <div class="result-item">
+                <!-- Removed global link parameters from card background -->
+                <div class="result-item" style="cursor: default; transform: none; box-shadow: var(--shadow-sm); transition: none;">
+                    
                     <div class="result-counter">Item #{{ current_start + loop.index0 }}</div>
-                    <a href="{{ item.href }}" target="_blank">{{ item.title }}</a>
+                    
+                    <!-- Only this specific header string handles the redirect link now -->
+                    <h3 style="margin: 0 0 8px 0; font-size: 20px;">
+                        <a href="{{ item.href }}" target="_blank" style="color: var(--primary); text-decoration: none; display: inline-block;">
+                            {{ item.title }}
+                        </a>
+                    </h3>
+                    
                     <span class="snippet">{{ item.body }}</span>
                     
-                    <!-- FIXED MINI PLAYER INJECTION (Added pointer-events: auto and z-index) -->
+                    <!-- Separate isolated media component frame block -->
                     {% if item.media_type == 'audio' %}
-                        <div style="margin-top: 15px; padding-top: 10px; border-top: 1px dashed var(--border-color); position: relative; z-index: 10; pointer-events: auto;">
-                            <span style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 5px;">🎵 Listen Directly:</span>
-                            <audio controls style="width: 100%; max-width: 400px; height: 32px; display: block;">
+                        <div style="margin-top: 15px; padding-top: 12px; border-top: 1px dashed var(--border-color); display: block; position: static;">
+                            <span style="font-size: 13px; color: var(--text-muted); display: block; margin-bottom: 6px; font-weight: 600;">🎵 Listen to Audio Track:</span>
+                            <!-- Using standard un-styled HTML controls explicitly -->
+                            <audio controls style="width: 100%; max-width: 450px; display: block; filter: drop-shadow(0px 1px 2px rgba(0,0,0,0.05));">
+                                <source src="{{ item.media_url }}" type="audio/ogg">
                                 <source src="{{ item.media_url }}" type="audio/mpeg">
                                 Your browser does not support the audio element.
                             </audio>
                         </div>
                     {% elif item.media_type == 'video' %}
-                        <div style="margin-top: 15px; padding-top: 10px; border-top: 1px dashed var(--border-color); position: relative; z-index: 10; pointer-events: auto;">
-                            <span style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 5px;">🎬 View Clip:</span>
-                            <video controls style="width: 100%; max-width: 500px; border-radius: 8px; box-shadow: var(--shadow-sm); display: block;">
+                        <div style="margin-top: 15px; padding-top: 12px; border-top: 1px dashed var(--border-color); display: block; position: static;">
+                            <span style="font-size: 13px; color: var(--text-muted); display: block; margin-bottom: 6px; font-weight: 600;">🎬 Stream Video Clip:</span>
+                            <video controls style="width: 100%; max-width: 550px; border-radius: 6px; display: block; background-color: #000000; box-shadow: var(--shadow-sm);">
                                 <source src="{{ item.media_url }}" type="video/mp4">
                                 Your browser does not support the video element.
                             </video>
