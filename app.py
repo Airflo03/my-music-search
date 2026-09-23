@@ -8,6 +8,8 @@ def fetch_live_search(query):
     """
     Fetches real-time web articles from an open machine index.
     Includes a unique User-Agent string to satisfy Wikipedia's robot security block.
+    Increased 'srlimit' to 500 to expand pagination capacity.
+    
     """
     url = "https://en.wikipedia.org/w/api.php"
     params = {
@@ -15,7 +17,7 @@ def fetch_live_search(query):
         "list": "search",
         "srsearch": query,
         "format": "json",
-        "srlimit": 100
+        "srlimit": 500  # <--- UPDATED FROM 100 TO 500
     }
     
     # CRITICAL FIX: Tell Wikipedia who is making the request to avoid a 403 Block
