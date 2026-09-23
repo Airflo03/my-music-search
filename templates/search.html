@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Enterprise Search Hub</title>
     <style>
-        /* 1. Modern Reset & Variables */
         :root {
             --primary: #1a73e8;
             --primary-hover: #1557b0;
@@ -30,7 +29,6 @@
         
         .header-title { font-size: 28px; font-weight: 700; color: var(--primary); margin-bottom: 24px; text-align: center; }
 
-        /* 2. Sleek Search Box Layout */
         .search-box { 
             margin-bottom: 30px; 
             display: flex; 
@@ -63,7 +61,6 @@
         .search-box button:hover { background-color: var(--primary-hover); }
         .search-box button:active { transform: scale(0.98); }
 
-        /* 3. Header Controls Panel */
         .results-header {
             display: flex;
             justify-content: space-between;
@@ -88,47 +85,27 @@
             background-color: var(--bg-body);
         }
 
-        /* 4. PREMIUM CARD UI FOR SEARCH ITEMS */
-           <!-- Upgraded Always-Visible Resilient Pagination Section -->
-        {% if total_pages > 1 %}
-        <div class="pagination-container">
-            <div class="pagination">
-                
-                <!-- First Page Button (≪) -->
-                {% if page > 1 %}
-                    <a class="btn" href="/?q={{ query }}&page=1&per_page={{ per_page }}" title="First Page">≪</a>
-                    <a class="btn" href="/?q={{ query }}&page={{ page - 1 }}&per_page={{ per_page }}">← Previous</a>
-                {% else %}
-                    <!-- Disabled styling when already sitting on Page 1 -->
-                    <span class="btn disabled" style="color: #c4c7c9; border-color: #e8eaed; cursor: not-allowed; background: #fafafa;">≪</span>
-                    <span class="btn disabled" style="color: #c4c7c9; border-color: #e8eaed; cursor: not-allowed; background: #fafafa;">← Previous</span>
-                {% endif %}
-                
-                <!-- Core Page Counter Indicator -->
-                <span class="page-indicator">Page {{ page }} of {{ total_pages }}</span>
-                
-                <!-- Last Page Button (≫) -->
-                {% if page < total_pages %}
-                    <a class="btn" href="/?q={{ query }}&page={{ page + 1 }}&per_page={{ per_page }}">Next →</a>
-                    <a class="btn" href="/?q={{ query }}&page={{ total_pages }}&per_page={{ per_page }}" title="Last Page">≫</a>
-                {% else %}
-                    <!-- Disabled styling when sitting on the final index page boundary -->
-                    <span class="btn disabled" style="color: #c4c7c9; border-color: #e8eaed; cursor: not-allowed; background: #fafafa;">Next →</span>
-                    <span class="btn disabled" style="color: #c4c7c9; border-color: #e8eaed; cursor: not-allowed; background: #fafafa;">≫</span>
-                {% endif %}
-                
-            </div>
-        </div>
-        {% endif %}
+        .results-container {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
         
-        /* Smooth pop-out effect on hover */
+        .result-item { 
+            background: var(--bg-card);
+            padding: 20px;
+            border-radius: var(--radius);
+            border: 1px solid rgba(0,0,0,0.03);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
         .result-item:hover { 
             transform: translateY(-2px);
             box-shadow: var(--shadow-md);
             border-color: rgba(26,115,232,0.2);
         }
 
-        /* Index badge indicator inside each item card */
         .result-counter {
             font-size: 11px;
             font-weight: 700;
@@ -158,39 +135,37 @@
             line-height: 1.6;
         }
 
-        /* 5. Clean Professional Pagination Link Blocks */
         .pagination-container {
             margin-top: 40px;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
         }
-        .pagination { display: flex; align-items: center; gap: 12px; }
+        .pagination { display: flex; align-items: center; gap: 6px; }
         .btn { 
-            padding: 10px 24px; 
+            padding: 8px 16px; 
             background: var(--bg-card); 
             border: 1px solid var(--border-color); 
             text-decoration: none; 
             color: var(--primary); 
             font-weight: 600;
             font-size: 14px;
-            border-radius: 30px; 
+            border-radius: 20px; 
             box-shadow: 0 1px 2px rgba(0,0,0,0.05);
             transition: all 0.2s;
+            min-width: 24px;
+            text-align: center;
         }
         .btn:hover { 
             background: var(--primary); 
             color: white; 
             border-color: var(--primary);
-            box-shadow: var(--shadow-sm);
         }
         .page-indicator { 
-            font-size: 14px; 
+            font-size: 13px; 
             color: var(--text-muted); 
             font-weight: 600;
-            background: var(--bg-card);
-            padding: 8px 16px;
-            border-radius: 20px;
-            border: 1px solid var(--border-color);
         }
     </style>
 </head>
@@ -220,11 +195,9 @@
             </div>
         </div>
 
-        <!-- Styled Results Layout -->
         <div class="results-container">
             {% for item in results %}
                 <div class="result-item">
-                    <!-- Dynamic numbering badge combining loop counter and current page index offset -->
                     <div class="result-counter">Item #{{ current_start + loop.index0 }}</div>
                     <a href="{{ item.href }}" target="_blank">{{ item.title }}</a>
                     <span class="snippet">{{ item.body }}</span>
@@ -232,12 +205,12 @@
             {% endfor %}
         </div>
 
-        <!-- Advanced Clickable Numeric Pagination Grid -->
+        <!-- Correctly Parsed Numeric Pagination Logic Blocks -->
         {% if total_pages > 1 %}
         <div class="pagination-container">
             <div class="pagination">
                 
-                <!-- ≪ First Page Link -->
+                <!-- ≪ Navigation Jump Link hooks -->
                 {% if page > 1 %}
                     <a class="btn" href="/?q={{ query }}&page=1&per_page={{ per_page }}" title="First Page">≪</a>
                     <a class="btn" href="/?q={{ query }}&page={{ page - 1 }}&per_page={{ per_page }}">←</a>
@@ -246,20 +219,16 @@
                     <span class="btn disabled" style="color: #c4c7c9; border-color: #e8eaed; cursor: not-allowed; background: #fafafa;">←</span>
                 {% endif %}
                 
-                <!-- DYNAMIC NUMERIC PAGE BUTTONS -->
-                {# Loop through all available pages and render them dynamically #}
+                <!-- Clickable Page Number Generation -->
                 {% for p in range(1, total_pages + 1) %}
-                    {# Only show pages close to the current page to prevent a huge list if there are 50 pages #}
                     {% if p == page %}
-                        <!-- Highlighted Active Current Page -->
                         <span class="btn" style="background: var(--primary); color: white; border-color: var(--primary); cursor: default;">{{ p }}</span>
                     {% elif p >= page - 2 and p <= page + 2 %}
-                        <!-- Clickable Neighbour Pages -->
                         <a class="btn" href="/?q={{ query }}&page={{ p }}&per_page={{ per_page }}">{{ p }}</a>
                     {% endif %}
                 {% endfor %}
                 
-                <!-- ≫ Last Page Link -->
+                <!-- ≫ Navigation Jump Link hooks -->
                 {% if page < total_pages %}
                     <a class="btn" href="/?q={{ query }}&page={{ page + 1 }}&per_page={{ per_page }}">→</a>
                     <a class="btn" href="/?q={{ query }}&page={{ total_pages }}&per_page={{ per_page }}" title="Last Page">≫</a>
@@ -270,11 +239,17 @@
                 
             </div>
             
-            <div style="font-size: 13px; color: var(--text-muted); margin-top: 8px;">
+            <div class="page-indicator">
                 Page {{ page }} of {{ total_pages }}
             </div>
         </div>
         {% endif %}
+        
+    {% elif query %}
+        <div class="result-item" style="text-align: center; color: var(--text-muted); margin-top: 20px;">
+            No records matched your specific search criteria.
+        </div>
+    {% endif %}
 
 </body>
 </html>
