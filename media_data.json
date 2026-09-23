@@ -1,50 +1,32 @@
 {
-    "audio": [
+    "media": [
         {
-            "title": "Ludwig van Beethoven - Symphony No. 5 in C minor",
+            "title": "Lo-Fi Beats for Coding and Study (Relaxing Music Stream)",
+            "href": "https://youtube.com",
+            "body": "Stream real-time chill lo-fi ambient tracks optimized for deep work focus, software development routines, and studying environment sessions.",
+            "media_type": "youtube",
+            "media_url": "https://youtube.com"
+        },
+        {
+            "title": "Python Flask Web Application Development Tutorial for Beginners",
+            "href": "https://youtube.com",
+            "body": "Learn how to build, layout, build templates, and launch scalable web interfaces using the Python programming language and Flask framework setups.",
+            "media_type": "youtube",
+            "media_url": "https://youtube.com"
+        },
+        {
+            "title": "Ludwig van Beethoven - Symphony No. 5 (Full Orchestral Audio Track)",
             "href": "https://wikipedia.org",
-            "body": "Listen to the complete orchestral performance of Beethoven's legendary 5th Symphony, widely regarded as one of the most famous compositions in classical music history.",
+            "body": "Listen to the complete high-fidelity classical recording of Beethoven's masterwork Symphony No. 5 in C minor, originally written in 1808.",
             "media_type": "audio",
             "media_url": "https://wikimedia.org"
         },
         {
-            "title": "Franz Schubert - Ave Maria (Orchestral Instrumental)",
+            "title": "Blender Animation Studio - Big Buck Bunny Open Cinema Movie",
             "href": "https://wikipedia.org",
-            "body": "Stream the historical instrumental classical recording of Ellens dritter Gesang, popularly referred to as Schubert's Ave Maria, composed originally in 1825.",
-            "media_type": "audio",
+            "body": "Stream the famous open-source cinematic production short animation film developed entirely by the Blender foundation community workspace tracking frames.",
+            "media_type": "video_file",
             "media_url": "https://wikimedia.org"
-        }
-    ],
-    "video": [
-        {
-            "title": "Big Buck Bunny - Open Source Cinema Project",
-            "href": "https://wikipedia.org",
-            "body": "Watch the famous full-length animated short film created entirely with open-source software by the Blender Foundation. Features high-definition canvas playback frames.",
-            "media_type": "video",
-            "media_url": "https://googleapis.com"
-        },
-        {
-            "title": "Sintel - Open Movie Project (Blender Animation)",
-            "href": "https://wikipedia.org",
-            "body": "Stream the cinematic fantasy short film 'Sintel', produced as an open-source creative project showcasing advanced computer graphic rendering techniques.",
-            "media_type": "video",
-            "media_url": "https://googleapis.com"
-        }
-    ],
-    "general": [
-        {
-            "title": "Python (Programming Language) Documentation",
-            "href": "https://wikipedia.org",
-            "body": "Python is a high-level, general-purpose programming language. Its design philosophy emphasizes code readability with the use of significant indentation.",
-            "media_type": null,
-            "media_url": null
-        },
-        {
-            "title": "Flask (Web Framework) Essentials",
-            "href": "https://wikipedia.org",
-            "body": "Flask is a micro web framework written in Python. It is classified as a microframework because it does not require particular tools or libraries.",
-            "media_type": null,
-            "media_url": null
         }
     ]
 }
