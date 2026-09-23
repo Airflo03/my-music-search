@@ -89,22 +89,28 @@
         }
 
         /* 4. PREMIUM CARD UI FOR SEARCH ITEMS */
-        .results-container {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-        
-        .result-item { 
-            background: var(--bg-card);
-            padding: 20px;
-            border-radius: var(--radius);
-            border: 1px solid rgba(0,0,0,0.03);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-            transition: transform 0.2s, box-shadow 0.2s;
-            position: relative;
-            overflow: hidden;
-        }
+                <!-- Upgraded Premium Pagination Section -->
+        {% if total_pages > 1 %}
+        <div class="pagination-container">
+            <div class="pagination">
+                
+                <!-- Jump to First Page Link -->
+                {% if page > 1 %}
+                    <a class="btn" href="/?q={{ query }}&page=1&per_page={{ per_page }}" title="First Page">≪</a>
+                    <a class="btn" href="/?q={{ query }}&page={{ page - 1 }}&per_page={{ per_page }}">← Previous</a>
+                {% endif %}
+                
+                <span class="page-indicator">Page {{ page }} of {{ total_pages }}</span>
+                
+                <!-- Jump to Last Page Link -->
+                {% if page < total_pages %}
+                    <a class="btn" href="/?q={{ query }}&page={{ page + 1 }}&per_page={{ per_page }}">Next →</a>
+                    <a class="btn" href="/?q={{ query }}&page={{ total_pages }}&per_page={{ per_page }}" title="Last Page">≫</a>
+                {% endif %}
+                
+            </div>
+        </div>
+        {% endif %}
         
         /* Smooth pop-out effect on hover */
         .result-item:hover { 
