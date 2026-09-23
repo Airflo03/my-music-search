@@ -3,105 +3,188 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Internet Search Exporter</title>
+    <title>Enterprise Search Hub</title>
     <style>
+        /* 1. Modern Reset & Variables */
+        :root {
+            --primary: #1a73e8;
+            --primary-hover: #1557b0;
+            --text-main: #202124;
+            --text-muted: #5f6368;
+            --bg-body: #f8f9fa;
+            --bg-card: #ffffff;
+            --border-color: #dadce0;
+            --radius: 12px;
+            --shadow-sm: 0 1px 3px rgba(60,64,67,0.1), 0 1px 2px rgba(60,64,67,0.15);
+            --shadow-md: 0 4px 12px rgba(60,64,67,0.08), 0 1px 3px rgba(60,64,67,0.15);
+        }
+
         body { 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
-            max-width: 750px; 
-            margin: 40px auto; 
-            padding: 0 20px; 
-            color: #202124;
-            background-color: #ffffff;
+            max-width: 800px; 
+            margin: 0 auto; 
+            padding: 40px 20px; 
+            color: var(--text-main);
+            background-color: var(--bg-body);
         }
         
-        h2 { font-weight: 600; color: #1a73e8; margin-bottom: 20px; }
+        .header-title { font-size: 28px; font-weight: 700; color: var(--primary); margin-bottom: 24px; text-align: center; }
 
-        .search-box { margin-bottom: 25px; display: flex; gap: 12px; }
+        /* 2. Sleek Search Box Layout */
+        .search-box { 
+            margin-bottom: 30px; 
+            display: flex; 
+            gap: 12px; 
+            background: var(--bg-card);
+            padding: 8px;
+            border-radius: 30px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+        }
         .search-box input { 
             flex: 1; 
-            padding: 12px 16px; 
+            padding: 10px 16px; 
             font-size: 16px; 
-            border: 1px solid #dadce0; 
-            border-radius: 24px;
+            border: none;
+            background: transparent;
             outline: none;
-            transition: box-shadow 0.2s;
         }
-        .search-box input:focus { box-shadow: 0 1px 6px rgba(32,33,36,0.28); border-color: rgba(223,225,229,0); }
         .search-box button { 
-            padding: 12px 24px; 
+            padding: 10px 28px; 
             font-size: 15px; 
-            font-weight: 500;
+            font-weight: 600;
             color: white;
-            background-color: #1a73e8;
+            background-color: var(--primary);
             border: none;
             border-radius: 24px; 
             cursor: pointer; 
-            transition: background-color 0.2s;
+            transition: background-color 0.2s, transform 0.1s;
         }
-        .search-box button:hover { background-color: #1557b0; }
+        .search-box button:hover { background-color: var(--primary-hover); }
+        .search-box button:active { transform: scale(0.98); }
 
-        /* Modernized Header Controls Panel */
+        /* 3. Header Controls Panel */
         .results-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             font-size: 14px; 
-            color: #70757a; 
-            margin-bottom: 20px; 
-            padding-bottom: 12px;
-            border-bottom: 1px solid #ebebeb;
+            color: var(--text-muted);
+            margin-bottom: 24px; 
+            padding: 12px 16px;
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
         }
         
         .results-header select {
             padding: 6px 12px;
-            border: 1px solid #dadce0;
-            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
             font-size: 14px;
-            color: #3c4043;
+            color: var(--text-main);
             outline: none;
             cursor: pointer;
+            background-color: var(--bg-body);
         }
 
-        .result-item { margin-bottom: 28px; line-height: 1.5; }
-        .result-item a { color: #1a0dab; text-decoration: none; font-size: 19px; }
-        .result-item a:hover { text-decoration: underline; }
-        .snippet { color: #4d5156; font-size: 14px; margin-top: 4px; display: block; }
-
-        .pagination-container {
-            margin-top: 50px;
+        /* 4. PREMIUM CARD UI FOR SEARCH ITEMS */
+        .results-container {
             display: flex;
             flex-direction: column;
-            align-items: center;
-            gap: 12px;
+            gap: 16px;
         }
-        .pagination { display: flex; align-items: center; gap: 8px; }
-        .btn { 
-            padding: 10px 20px; 
-            background: #ffffff; 
-            border: 1px solid #dadce0; 
+        
+        .result-item { 
+            background: var(--bg-card);
+            padding: 20px;
+            border-radius: var(--radius);
+            border: 1px solid rgba(0,0,0,0.03);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            transition: transform 0.2s, box-shadow 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Smooth pop-out effect on hover */
+        .result-item:hover { 
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            border-color: rgba(26,115,232,0.2);
+        }
+
+        /* Index badge indicator inside each item card */
+        .result-counter {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--primary);
+            background: rgba(26,115,232,0.1);
+            padding: 2px 8px;
+            border-radius: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: inline-block;
+            margin-bottom: 8px;
+        }
+
+        .result-item a { 
+            color: var(--primary); 
             text-decoration: none; 
-            color: #1a73e8; 
-            font-weight: 500;
+            font-size: 20px; 
+            font-weight: 600;
+            display: block;
+            margin-bottom: 6px;
+        }
+        .result-item a:hover { color: var(--primary-hover); text-decoration: underline; }
+        
+        .snippet { 
+            color: var(--text-muted); 
+            font-size: 14px; 
+            line-height: 1.6;
+        }
+
+        /* 5. Clean Professional Pagination Link Blocks */
+        .pagination-container {
+            margin-top: 40px;
+            display: flex;
+            justify-content: center;
+        }
+        .pagination { display: flex; align-items: center; gap: 12px; }
+        .btn { 
+            padding: 10px 24px; 
+            background: var(--bg-card); 
+            border: 1px solid var(--border-color); 
+            text-decoration: none; 
+            color: var(--primary); 
+            font-weight: 600;
             font-size: 14px;
-            border-radius: 20px; 
+            border-radius: 30px; 
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
             transition: all 0.2s;
         }
-        .btn:hover { background: #f8f9fa; border-color: #1a73e8; }
+        .btn:hover { 
+            background: var(--primary); 
+            color: white; 
+            border-color: var(--primary);
+            box-shadow: var(--shadow-sm);
+        }
         .page-indicator { 
             font-size: 14px; 
-            color: #3c4043; 
-            font-weight: 500;
-            padding: 0 10px;
+            color: var(--text-muted); 
+            font-weight: 600;
+            background: var(--bg-card);
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
         }
     </style>
 </head>
 <body>
 
-    <h2>Global Search Tool</h2>
+    <h2 class="header-title">Enterprise Search Hub</h2>
     
-    <!-- Added per_page parameter to form submission -->
     <form action="/" method="GET" class="search-box">
-        <input type="text" name="q" value="{{ query }}" placeholder="Type something to find..." required>
+        <input type="text" name="q" value="{{ query }}" placeholder="Search the web index safely..." required>
         <input type="hidden" name="per_page" value="{{ per_page }}">
         <button type="submit">Search</button>
     </form>
@@ -109,10 +192,9 @@
     {% if results %}
         <div class="results-header">
             <div>
-                Showing {{ current_start }}–{{ current_end }} of {{ total_items }} results
+                Showing <b>{{ current_start }}–{{ current_end }}</b> of <b>{{ total_items }}</b> results
             </div>
             
-            <!-- Dynamic dropdown menu with auto-submit script -->
             <div>
                 Rows per page:
                 <select onchange="location = this.value;">
@@ -123,10 +205,13 @@
             </div>
         </div>
 
-        <div>
+        <!-- Styled Results Layout -->
+        <div class="results-container">
             {% for item in results %}
                 <div class="result-item">
-                    <a href="{{ item.href }}" target="_blank"><strong>{{ item.title }}</strong></a>
+                    <!-- Dynamic numbering badge combining loop counter and current page index offset -->
+                    <div class="result-counter">Item #{{ current_start + loop.index0 }}</div>
+                    <a href="{{ item.href }}" target="_blank">{{ item.title }}</a>
                     <span class="snippet">{{ item.body }}</span>
                 </div>
             {% endfor %}
@@ -135,7 +220,6 @@
         {% if total_pages > 1 %}
         <div class="pagination-container">
             <div class="pagination">
-                <!-- Appended &per_page to the pagination routes so preferences persist -->
                 {% if page > 1 %}
                     <a class="btn" href="/?q={{ query }}&page={{ page - 1 }}&per_page={{ per_page }}">← Previous</a>
                 {% endif %}
@@ -150,7 +234,9 @@
         {% endif %}
         
     {% elif query %}
-        <p>No results found for your search string.</p>
+        <div class="result-item" style="text-align: center; color: var(--text-muted);">
+            No records matched your specific search criteria.
+        </div>
     {% endif %}
 
 </body>
