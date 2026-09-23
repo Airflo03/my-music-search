@@ -1,43 +1,56 @@
-import json
 import math
-import os
 from flask import Flask, render_template, request
+import requests
 
 app = Flask(__name__)
 
-JSON_PATH = os.path.join(os.path.dirname(__file__), 'media_data.json')
-
-def fetch_live_media_search(query):
+def fetch_live_search(query):
     """
-    Parses local media JSON database arrays to yield up to 500 rows.
-    Bypasses unstable public meta-proxies entirely for 24/7 reliability.
+    Fetches real-time web articles from an open machine index.
+    Includes a unique User-Agent string to satisfy Wikipedia's robot security block.
+    Increased 'srlimit' to 500 to expand pagination capacity.
+    
     """
-    if not os.path.exists(JSON_PATH):
-        return []
-        
+    url = "https://en.wikipedia.org/w/api.php"
+    params = {
+        "action": "query",
+        "list": "search",
+        "srsearch": query,
+        "format": "json",
+        "srlimit": 500  # <--- UPDATED FROM 100 TO 500
+    }
+    
+    # CRITICAL FIX: Tell Wikipedia who is making the request to avoid a 403 Block
+    headers = {
+        "User-Agent": "MyFlaskScraperApp/1.0 (contact: your-email@example.com; educational school project)"
+    }
+    
     try:
-        with open(JSON_PATH, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-            
-        media_items = data.get("media", [])
-        if not media_items:
+        # Pass the headers parameter explicitly
+        response = requests.get(url, params=params, headers=headers, timeout=8)
+        
+        # This will print the actual error code inside your Render log explorer if it fails
+        if response.status_code != 200:
+            print(f"Server returned HTTP Error Status: {response.status_code}")
             return []
             
+        data = response.json()
+        search_items = data.get("query", {}).get("search", [])
+        
         parsed_results = []
-        # Construct exactly 500 total entries to satisfy the pagination bar math
-        for i in range(1, 501):
-            template = media_items[(i - 1) % len(media_items)]
+        for item in search_items:
+            title = item.get("title")
+            href = f"https://en.wikipedia.org/wiki/{title.replace(' ', '_')}"
+            body = item.get("snippet", "").replace('<span class="searchmatch">', '').replace('</span>', '')
             
             parsed_results.append({
-                'title': f"{template['title']} (Result #{i})",
-                'href': f"{template['href']}?item_ref={i}",
-                'body': f"[Matching keyword context: {query}] {template['body']}",
-                'media_type': template['media_type'],
-                'media_url': template['media_url']
+                'title': title,
+                'href': href,
+                'body': body + "..."
             })
         return parsed_results
     except Exception as e:
-        print(f"Error accessing dataset files: {e}")
+        print(f"Network error tracing details: {e}")
         return []
 
 @app.route('/', methods=['GET'])
@@ -59,7 +72,7 @@ def search_page():
     current_end = 0
 
     if query:
-        raw_results = fetch_live_media_search(query)
+        raw_results = fetch_live_search(query)
         total_items = len(raw_results)
         
         if total_items > 0:
