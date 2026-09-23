@@ -89,23 +89,32 @@
         }
 
         /* 4. PREMIUM CARD UI FOR SEARCH ITEMS */
-                <!-- Upgraded Premium Pagination Section -->
+           <!-- Upgraded Always-Visible Resilient Pagination Section -->
         {% if total_pages > 1 %}
         <div class="pagination-container">
             <div class="pagination">
                 
-                <!-- Jump to First Page Link -->
+                <!-- First Page Button (≪) -->
                 {% if page > 1 %}
                     <a class="btn" href="/?q={{ query }}&page=1&per_page={{ per_page }}" title="First Page">≪</a>
                     <a class="btn" href="/?q={{ query }}&page={{ page - 1 }}&per_page={{ per_page }}">← Previous</a>
+                {% else %}
+                    <!-- Disabled styling when already sitting on Page 1 -->
+                    <span class="btn disabled" style="color: #c4c7c9; border-color: #e8eaed; cursor: not-allowed; background: #fafafa;">≪</span>
+                    <span class="btn disabled" style="color: #c4c7c9; border-color: #e8eaed; cursor: not-allowed; background: #fafafa;">← Previous</span>
                 {% endif %}
                 
+                <!-- Core Page Counter Indicator -->
                 <span class="page-indicator">Page {{ page }} of {{ total_pages }}</span>
                 
-                <!-- Jump to Last Page Link -->
+                <!-- Last Page Button (≫) -->
                 {% if page < total_pages %}
                     <a class="btn" href="/?q={{ query }}&page={{ page + 1 }}&per_page={{ per_page }}">Next →</a>
                     <a class="btn" href="/?q={{ query }}&page={{ total_pages }}&per_page={{ per_page }}" title="Last Page">≫</a>
+                {% else %}
+                    <!-- Disabled styling when sitting on the final index page boundary -->
+                    <span class="btn disabled" style="color: #c4c7c9; border-color: #e8eaed; cursor: not-allowed; background: #fafafa;">Next →</span>
+                    <span class="btn disabled" style="color: #c4c7c9; border-color: #e8eaed; cursor: not-allowed; background: #fafafa;">≫</span>
                 {% endif %}
                 
             </div>
