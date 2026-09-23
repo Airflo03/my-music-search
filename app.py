@@ -7,20 +7,29 @@ app = Flask(__name__)
 def fetch_live_search(query):
     """
     Fetches real-time web articles from an open machine index.
-    Data centres like Render are fully permitted to use this route.
+    Includes a unique User-Agent string to satisfy Wikipedia's robot security block.
     """
-    url = "https://wikipedia.org"
+    url = "https://en.wikipedia.org/w/api.php"
     params = {
         "action": "query",
         "list": "search",
         "srsearch": query,
         "format": "json",
-        "srlimit": 100  # Pulls a baseline of 100 documents to manage your 4 pagination sub-pages
+        "srlimit": 100
+    }
+    
+    # CRITICAL FIX: Tell Wikipedia who is making the request to avoid a 403 Block
+    headers = {
+        "User-Agent": "MyFlaskScraperApp/1.0 (contact: your-email@example.com; educational school project)"
     }
     
     try:
-        response = requests.get(url, params=params, timeout=8)
+        # Pass the headers parameter explicitly
+        response = requests.get(url, params=params, headers=headers, timeout=8)
+        
+        # This will print the actual error code inside your Render log explorer if it fails
         if response.status_code != 200:
+            print(f"Server returned HTTP Error Status: {response.status_code}")
             return []
             
         data = response.json()
@@ -29,9 +38,7 @@ def fetch_live_search(query):
         parsed_results = []
         for item in search_items:
             title = item.get("title")
-            # Build direct hyperlinked references to the parsed targets
-            href = f"https://wikipedia.org{title.replace(' ', '_')}"
-            # Strip structural HTML formatting variables from the excerpt snippet template
+            href = f"https://en.wikipedia.org/wiki/{title.replace(' ', '_')}"
             body = item.get("snippet", "").replace('<span class="searchmatch">', '').replace('</span>', '')
             
             parsed_results.append({
@@ -41,7 +48,7 @@ def fetch_live_search(query):
             })
         return parsed_results
     except Exception as e:
-        print(f"Connection failure tracing detail: {e}")
+        print(f"Network error tracing details: {e}")
         return []
 
 @app.route('/', methods=['GET'])
@@ -63,7 +70,6 @@ def search_page():
     current_end = 0
 
     if query:
-        # Load live content from the open internet endpoint
         raw_results = fetch_live_search(query)
         total_items = len(raw_results)
         
