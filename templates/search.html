@@ -202,19 +202,19 @@
                     <a href="{{ item.href }}" target="_blank">{{ item.title }}</a>
                     <span class="snippet">{{ item.body }}</span>
                     
-                    <!-- DYNAMIC MINI PLAYER INJECTION -->
+                    <!-- FIXED MINI PLAYER INJECTION (Added pointer-events: auto and z-index) -->
                     {% if item.media_type == 'audio' %}
-                        <div style="margin-top: 15px; padding-top: 10px; border-top: 1px dashed var(--border-color);">
+                        <div style="margin-top: 15px; padding-top: 10px; border-top: 1px dashed var(--border-color); position: relative; z-index: 10; pointer-events: auto;">
                             <span style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 5px;">🎵 Listen Directly:</span>
-                            <audio controls style="width: 100%; max-width: 400px; height: 32px;">
+                            <audio controls style="width: 100%; max-width: 400px; height: 32px; display: block;">
                                 <source src="{{ item.media_url }}" type="audio/mpeg">
                                 Your browser does not support the audio element.
                             </audio>
                         </div>
                     {% elif item.media_type == 'video' %}
-                        <div style="margin-top: 15px; padding-top: 10px; border-top: 1px dashed var(--border-color);">
+                        <div style="margin-top: 15px; padding-top: 10px; border-top: 1px dashed var(--border-color); position: relative; z-index: 10; pointer-events: auto;">
                             <span style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 5px;">🎬 View Clip:</span>
-                            <video controls style="width: 100%; max-width: 500px; border-radius: 8px; box-shadow: var(--shadow-sm);">
+                            <video controls style="width: 100%; max-width: 500px; border-radius: 8px; box-shadow: var(--shadow-sm); display: block;">
                                 <source src="{{ item.media_url }}" type="video/mp4">
                                 Your browser does not support the video element.
                             </video>
