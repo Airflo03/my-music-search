@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enterprise Search Hub</title>
+    <title>Enterprise Media Search Hub</title>
     <style>
         :root {
             --primary: #1a73e8;
@@ -119,20 +119,15 @@
             margin-bottom: 8px;
         }
 
-        .result-item a { 
-            color: var(--primary); 
-            text-decoration: none; 
-            font-size: 20px; 
-            font-weight: 600;
-            display: block;
-            margin-bottom: 6px;
-        }
-        .result-item a:hover { color: var(--primary-hover); text-decoration: underline; }
+        .result-item h3 { margin: 0 0 8px 0; font-size: 20px; }
+        .result-item h3 a { color: var(--primary); text-decoration: none; display: inline-block; }
+        .result-item h3 a:hover { text-decoration: underline; }
         
         .snippet { 
             color: var(--text-muted); 
             font-size: 14px; 
             line-height: 1.6;
+            display: block;
         }
 
         .pagination-container {
@@ -171,10 +166,10 @@
 </head>
 <body>
 
-    <h2 class="header-title">Enterprise Search Hub</h2>
+    <h2 class="header-title">Enterprise Media Search Hub</h2>
     
     <form action="/" method="GET" class="search-box">
-        <input type="text" name="q" value="{{ query }}" placeholder="Search the web index safely..." required>
+        <input type="text" name="q" value="{{ query }}" placeholder="Search YouTube, Audio & Web listings safely..." required>
         <input type="hidden" name="per_page" value="{{ per_page }}">
         <button type="submit">Search</button>
     </form>
@@ -195,24 +190,21 @@
             </div>
         </div>
 
-         <!-- Advanced Multi-Platform Media Safe Layout -->
         <div class="results-container">
             {% for item in results %}
                 <div class="result-item" style="cursor: default; transform: none; transition: none;">
                     
                     <div class="result-counter">Item #{{ current_start + loop.index0 }}</div>
                     
-                    <h3 style="margin: 0 0 8px 0; font-size: 20px;">
-                        <a href="{{ item.href }}" target="_blank" style="color: var(--primary); text-decoration: none; display: inline-block;">
+                    <h3>
+                        <a href="{{ item.href }}" target="_blank">
                             {{ item.title }}
                         </a>
                     </h3>
                     
-                    <div class="snippet" style="margin-bottom: 12px;">{{ item.body }}</div>
+                    <span class="snippet">{{ item.body }}</span>
                     
-                    <!-- DYNAMIC PLAYER ROUTING GRID -->
-                    
-                    <!-- Case A: YouTube Video Embeds -->
+                    <!-- Dynamic Media Layout Container Split -->
                     {% if item.media_type == 'youtube' %}
                         <div style="margin-top: 15px; padding-top: 12px; border-top: 1px dashed var(--border-color);">
                             <span style="font-size: 13px; color: var(--text-muted); display: block; margin-bottom: 8px; font-weight: 600;">🎬 Stream YouTube Video:</span>
@@ -224,10 +216,7 @@
                                 </iframe>
                             </div>
                         </div>
-                        
-                    <!-- Case B: Standard Audio Tracks / Podcasts -->
-                    {% TYPE == 'audio' or item.media_type == 'audio' %}
-                    {% if item.media_type == 'audio' %}
+                    {% elif item.media_type == 'audio' %}
                         <div style="margin-top: 15px; padding-top: 12px; border-top: 1px dashed var(--border-color);">
                             <span style="font-size: 13px; color: var(--text-muted); display: block; margin-bottom: 6px; font-weight: 600;">🎵 Listen to Audio Track:</span>
                             <audio controls style="width: 100%; max-width: 450px; display: block;">
@@ -236,10 +225,7 @@
                                 Your browser does not support the audio element.
                             </audio>
                         </div>
-                    {% endif %}
-                    
-                    <!-- Case C: Independent Video File Streams -->
-                    {% if item.media_type == 'video_file' %}
+                    {% elif item.media_type == 'video_file' %}
                         <div style="margin-top: 15px; padding-top: 12px; border-top: 1px dashed var(--border-color);">
                             <span style="font-size: 13px; color: var(--text-muted); display: block; margin-bottom: 6px; font-weight: 600;">📹 Play Video Stream:</span>
                             <video controls style="width: 100%; max-width: 500px; border-radius: 6px; display: block; background-color: #000000;">
@@ -254,12 +240,12 @@
             {% endfor %}
         </div>
 
-        <!-- Correctly Parsed Numeric Pagination Logic Blocks -->
+        <!-- Numeric Pagination Engine -->
         {% if total_pages > 1 %}
         <div class="pagination-container">
             <div class="pagination">
                 
-                <!-- ≪ Navigation Jump Link hooks -->
+                <!-- ≪ First Page & Previous Page Jump Links -->
                 {% if page > 1 %}
                     <a class="btn" href="/?q={{ query }}&page=1&per_page={{ per_page }}" title="First Page">≪</a>
                     <a class="btn" href="/?q={{ query }}&page={{ page - 1 }}&per_page={{ per_page }}">←</a>
@@ -268,7 +254,7 @@
                     <span class="btn disabled" style="color: #c4c7c9; border-color: #e8eaed; cursor: not-allowed; background: #fafafa;">←</span>
                 {% endif %}
                 
-                <!-- Clickable Page Number Generation -->
+                <!-- Clickable Number Generation -->
                 {% for p in range(1, total_pages + 1) %}
                     {% if p == page %}
                         <span class="btn" style="background: var(--primary); color: white; border-color: var(--primary); cursor: default;">{{ p }}</span>
@@ -277,7 +263,7 @@
                     {% endif %}
                 {% endfor %}
                 
-                <!-- ≫ Navigation Jump Link hooks -->
+                <!-- Next Page & ≫ Last Page Jump Links -->
                 {% if page < total_pages %}
                     <a class="btn" href="/?q={{ query }}&page={{ page + 1 }}&per_page={{ per_page }}">→</a>
                     <a class="btn" href="/?q={{ query }}&page={{ total_pages }}&per_page={{ per_page }}" title="Last Page">≫</a>
@@ -288,7 +274,7 @@
                 
             </div>
             
-            <div class="page-indicator">
+            <div class="page-indicator" style="margin-top: 10px;">
                 Page {{ page }} of {{ total_pages }}
             </div>
         </div>
