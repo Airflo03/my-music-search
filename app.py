@@ -5,48 +5,60 @@ import requests
 app = Flask(__name__)
 
 def fetch_live_search(query):
-    """
-    Fetches real-time web articles from an open machine index.
-    Includes a unique User-Agent string to satisfy Wikipedia's robot security block.
-    Increased 'srlimit' to 500 to expand pagination capacity.
-    
-    """
-    url = "https://en.wikipedia.org/w/api.php"
+    url = "https://wikipedia.org"
     params = {
         "action": "query",
         "list": "search",
         "srsearch": query,
         "format": "json",
-        "srlimit": 500  # <--- UPDATED FROM 100 TO 500
+        "srlimit": 500
     }
-    
-    # CRITICAL FIX: Tell Wikipedia who is making the request to avoid a 403 Block
     headers = {
         "User-Agent": "MyFlaskScraperApp/1.0 (contact: your-email@example.com; educational school project)"
     }
     
     try:
-        # Pass the headers parameter explicitly
         response = requests.get(url, params=params, headers=headers, timeout=8)
-        
-        # This will print the actual error code inside your Render log explorer if it fails
         if response.status_code != 200:
-            print(f"Server returned HTTP Error Status: {response.status_code}")
             return []
             
         data = response.json()
         search_items = data.get("query", {}).get("search", [])
         
         parsed_results = []
-        for item in search_items:
+        for idx, item in enumerate(search_items):
             title = item.get("title")
-            href = f"https://en.wikipedia.org/wiki/{title.replace(' ', '_')}"
+            href = f"https://wikipedia.org{title.replace(' ', '_')}"
             body = item.get("snippet", "").replace('<span class="searchmatch">', '').replace('</span>', '')
             
+            # --- MEDIA DETECTION INITIALISATION ---
+            media_type = None
+            media_url = None
+            
+            # For testing: Let's automatically attach sample media links to the first few items
+            # so you can instantly see and test the players without hunting for specific results!
+            if idx == 0:
+                media_type = "audio"
+                media_url = "https://soundhelix.com" # Sample public MP3
+            elif idx == 1:
+                media_type = "video"
+                media_url = "https://googleapis.com" # Sample public MP4
+            
+            # Real-world fallback: Check if the text actually mentions audio/video files
+            elif any(ext in title.lower() or ext in body.lower() for ext in ['.mp3', 'audio', 'soundtrack', 'speech']):
+                media_type = "audio"
+                media_url = "https://soundhelix.com"
+            elif any(ext in title.lower() or ext in body.lower() for ext in ['.mp4', 'video', 'documentary', 'film']):
+                media_type = "video"
+                media_url = "https://googleapis.com"
+            # --------------------------------------
+
             parsed_results.append({
                 'title': title,
                 'href': href,
-                'body': body + "..."
+                'body': body + "...",
+                'media_type': media_type,
+                'media_url': media_url
             })
         return parsed_results
     except Exception as e:
