@@ -1,57 +1,86 @@
 import math
+import os
 from flask import Flask, render_template, request
 import requests
+from dotenv import load_dotenv
+
+# Load local environment keys from your .env file
+load_dotenv()
 
 app = Flask(__name__)
 
-def fetch_live_search(query):
+# Securely grab your API configurations
+GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY", "YOUR_ACTUAL_API_KEY")
+GOOGLE_CX = os.environ.get("GOOGLE_CX", "YOUR_SEARCH_ENGINE_ID")
+
+def fetch_google_search(query, start_index=1, per_page=25):
     """
-    Fetches real-time web articles from an open machine index.
-    Includes a unique User-Agent string to satisfy Wikipedia's robot security block.
-    Increased 'srlimit' to 500 to expand pagination capacity.
+    Queries the official Google Custom Search API.
+    Returns live web results, descriptions, and media types.
+    """
+    url = "https://googleapis.com"
     
-    """
-    url = "https://en.wikipedia.org/w/api.php"
     params = {
-        "action": "query",
-        "list": "search",
-        "srsearch": query,
-        "format": "json",
-        "srlimit": 500  # <--- UPDATED FROM 100 TO 500
-    }
-    
-    # CRITICAL FIX: Tell Wikipedia who is making the request to avoid a 403 Block
-    headers = {
-        "User-Agent": "MyFlaskScraperApp/1.0 (contact: your-email@example.com; educational school project)"
+        "key": GOOGLE_API_KEY,
+        "cx": GOOGLE_CX,
+        "q": query,
+        "num": min(per_page, 10),  # Google API allows a maximum of 10 items per single API call
+        "start": start_index       # Controls pagination offset (e.g., item #11 starts Page 2)
     }
     
     try:
-        # Pass the headers parameter explicitly
-        response = requests.get(url, params=params, headers=headers, timeout=8)
-        
-        # This will print the actual error code inside your Render log explorer if it fails
+        response = requests.get(url, params=params, timeout=10)
         if response.status_code != 200:
-            print(f"Server returned HTTP Error Status: {response.status_code}")
-            return []
+            print(f"Google API Error: {response.status_code} - {response.text}")
+            return {"items": [], "total_results": 0}
             
         data = response.json()
-        search_items = data.get("query", {}).get("search", [])
+        search_items = data.get("items", [])
+        
+        # Extract total results safely from Google's response metadata
+        total_results = int(data.get("searchInformation", {}).get("totalResults", 0))
         
         parsed_results = []
         for item in search_items:
             title = item.get("title")
-            href = f"https://en.wikipedia.org/wiki/{title.replace(' ', '_')}"
-            body = item.get("snippet", "").replace('<span class="searchmatch">', '').replace('</span>', '')
+            href = item.get("link")
+            body = item.get("snippet", "")
             
+            media_type = None
+            media_url = None
+            
+            # --- LIVE YOUTUBE EMBED PARSING ---
+            # If Google returns a YouTube link, extract the ID to automatically render the iframe!
+            if "youtube.com" in href or "youtu.be" in href:
+                media_type = "youtube"
+                if "v=" in href:
+                    video_id = href.split("v=")[1].split("&")[0]
+                    media_url = f"https://youtube.com{video_id}"
+                elif "youtu.be/" in href:
+                    video_id = href.split("youtu.be/")[1].split("?")[0]
+                    media_url = f"https://youtube.com{video_id}"
+            
+            # General file extensions handling
+            elif href.lower().endswith(('.mp3', '.ogg', '.wav')):
+                media_type = "audio"
+                media_url = href
+            elif href.lower().endswith(('.mp4', '.webm')):
+                media_type = "video_file"
+                media_url = href
+
             parsed_results.append({
                 'title': title,
                 'href': href,
-                'body': body + "..."
+                'body': body,
+                'media_type': media_type,
+                'media_url': media_url
             })
-        return parsed_results
+            
+        return {"items": parsed_results, "total_results": total_results}
+        
     except Exception as e:
-        print(f"Network error tracing details: {e}")
-        return []
+        print(f"Network processing exception: {e}")
+        return {"items": [], "total_results": 0}
 
 @app.route('/', methods=['GET'])
 def search_page():
@@ -60,10 +89,9 @@ def search_page():
         page = int(request.args.get('page', 1))
     except ValueError:
         page = 1
-    try:
-        per_page = int(request.args.get('per_page', 25))
-    except ValueError:
-        per_page = 25
+        
+    # Standardise rows per page to match Google's optimal performance layout
+    per_page = 10 
 
     results = []
     total_pages = 0
@@ -72,17 +100,23 @@ def search_page():
     current_end = 0
 
     if query:
-        raw_results = fetch_live_search(query)
-        total_items = len(raw_results)
+        # Calculate Google's specific item offset (Page 1 = 1, Page 2 = 11, Page 3 = 21)
+        api_start_index = ((page - 1) * per_page) + 1
         
-        if total_items > 0:
-            start_index = (page - 1) * per_page
-            end_index = start_index + per_page
-            results = raw_results[start_index:end_index]
+        # Request live elements from Google
+        search_package = fetch_google_search(query, start_index=api_start_index, per_page=per_page)
+        
+        results = search_package["items"]
+        total_items = search_package["total_results"]
+        
+        # Google limits custom web queries to the first 100 results maximum (10 pages)
+        if total_items > 100:
+            total_items = 100
             
+        if total_items > 0:
             total_pages = math.ceil(total_items / per_page)
-            current_start = start_index + 1
-            current_end = min(end_index, total_items)
+            current_start = api_start_index
+            current_end = min(api_start_index + len(results) - 1, total_items)
 
     return render_template('search.html', query=query, results=results, page=page, 
                            per_page=per_page, total_pages=total_pages, total_items=total_items,
