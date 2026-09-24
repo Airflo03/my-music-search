@@ -1,37 +1,16 @@
 {
     "media": [
         {
-            "title": "Lo-Fi Beats for Coding and Study (Relaxing Music Stream)",
+            "title": "Ludwig van Beethoven - Symphony No. 5 in C minor",
             "href": "https://wikipedia.org",
-            "body": "Stream real-time chill ambient tracks optimised for deep work focus, software development routines, and long windows studying environments.",
-            "media_type": "youtube",
-            "media_url": "https://youtube.com"
-        },
-        {
-            "title": "Python Flask Web Application Development Tutorial for Beginners",
-            "href": "https://wikipedia.org",
-            "body": "Learn how to configure, route, build templates, style card UI frameworks, and deploy scalable python backend web applications safely.",
-            "media_type": "youtube",
-            "media_url": "https://youtube.com"
-        },
-        {
-            "title": "Ludwig van Beethoven - Symphony No. 5 in C minor (Full Orchestral Performance)",
-            "href": "https://wikipedia.org",
-            "body": "Listen to the complete high-fidelity classical tracking performance of Beethoven's legendary 5th Symphony arrangements, originally composed in 1808.",
+            "body": "Orchestral audio track matched directly via system background crawler framework nodes.",
             "media_type": "audio",
             "media_url": "https://wikimedia.org"
         },
         {
-            "title": "Franz Schubert - Ave Maria (Orchestral Classical Instrumental Archive)",
+            "title": "Blender Foundation - Big Buck Bunny Studio Film",
             "href": "https://wikipedia.org",
-            "body": "Stream the historical instrumental classical recording of Ellens dritter Gesang, popularly referred to as Schubert's classical arrangement Ave Maria.",
-            "media_type": "audio",
-            "media_url": "https://wikimedia.org"
-        },
-        {
-            "title": "Big Buck Bunny - Open Source Cinema Project Trailer Film",
-            "href": "https://wikipedia.org",
-            "body": "Watch the famous full-length animated short film created entirely with open-source tools by the Blender Foundation community rendering platform.",
+            "body": "Open source short animation video file track synced smoothly down into the local app folder.",
             "media_type": "video_file",
             "media_url": "https://wikimedia.org"
         }
