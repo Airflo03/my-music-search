@@ -101,7 +101,22 @@ def search_page():
         api_start_index = ((page - 1) * per_page) + 1
         
         search_package = fetch_google_search(query, start_index=api_start_index)
+
+        response = requests.get(url, params=params, timeout=8)
         
+        # Enhanced logging block to see Google's exact feedback
+        if response.status_code != 200:
+            try:
+                error_details = response.json().get("error", {}).get("message", "No clear message provided.")
+                print(f"--- GOOGLE REJECTION TRACE ---")
+                print(f"Status Code: {response.status_code}")
+                print(f"Reason: {error_details}")
+                print(f"------------------------------")
+                return {"items": [], "total_results": 0, "error_msg": f"Google Server error ({response.status_code}): {error_details}"}
+            except Exception:
+                return {"items": [], "total_results": 0, "error_msg": f"Google Server rejected request with Status Code: {response.status_code}."}
+        # END Enhanced logging block
+
         results = search_package["items"]
         total_items = search_package["total_results"]
         error_message = search_package["error_msg"]
