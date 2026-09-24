@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enterprise Search Hub</title>
+    <title>Enterprise Media Search Hub</title>
     <style>
         :root {
             --primary: #1a73e8;
@@ -97,13 +97,6 @@
             border-radius: var(--radius);
             border: 1px solid rgba(0,0,0,0.03);
             box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        
-        .result-item:hover { 
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
-            border-color: rgba(26,115,232,0.2);
         }
 
         .result-counter {
@@ -119,20 +112,15 @@
             margin-bottom: 8px;
         }
 
-        .result-item a { 
-            color: var(--primary); 
-            text-decoration: none; 
-            font-size: 20px; 
-            font-weight: 600;
-            display: block;
-            margin-bottom: 6px;
-        }
-        .result-item a:hover { color: var(--primary-hover); text-decoration: underline; }
+        .result-item h3 { margin: 0 0 8px 0; font-size: 20px; }
+        .result-item h3 a { color: var(--primary); text-decoration: none; display: inline-block; }
+        .result-item h3 a:hover { text-decoration: underline; }
         
         .snippet { 
             color: var(--text-muted); 
             font-size: 14px; 
             line-height: 1.6;
+            display: block;
         }
 
         .pagination-container {
@@ -171,10 +159,10 @@
 </head>
 <body>
 
-    <h2 class="header-title">Enterprise Search Hub</h2>
+    <h2 class="header-title">Enterprise Media Search Hub</h2>
     
     <form action="/" method="GET" class="search-box">
-        <input type="text" name="q" value="{{ query }}" placeholder="Search the web index safely..." required>
+        <input type="text" name="q" value="{{ query }}" placeholder="Search YouTube, Audio & Web listings safely..." required>
         <input type="hidden" name="per_page" value="{{ per_page }}">
         <button type="submit">Search</button>
     </form>
@@ -197,20 +185,60 @@
 
         <div class="results-container">
             {% for item in results %}
-                <div class="result-item">
+                <div class="result-item" style="cursor: default;">
+                    
                     <div class="result-counter">Item #{{ current_start + loop.index0 }}</div>
-                    <a href="{{ item.href }}" target="_blank">{{ item.title }}</a>
+                    
+                    <h3>
+                        <a href="{{ item.href }}" target="_blank">
+                            {{ item.title }}
+                        </a>
+                    </h3>
+                    
                     <span class="snippet">{{ item.body }}</span>
+                    
+                    <!-- Media Elements Injection Layer -->
+                    {% if item.media_type == 'youtube' %}
+                        <div style="margin-top: 15px; padding-top: 12px; border-top: 1px dashed var(--border-color);">
+                            <span style="font-size: 13px; color: var(--text-muted); display: block; margin-bottom: 8px; font-weight: 600;">🎬 Stream YouTube Video:</span>
+                            <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; border-radius: 8px; box-shadow: var(--shadow-sm);">
+                                <iframe src="{{ item.media_url }}" 
+                                        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;" 
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                        allowfullscreen>
+                                </iframe>
+                            </div>
+                        </div>
+                    {% elif item.media_type == 'audio' %}
+                        <div style="margin-top: 15px; padding-top: 12px; border-top: 1px dashed var(--border-color);">
+                            <span style="font-size: 13px; color: var(--text-muted); display: block; margin-bottom: 6px; font-weight: 600;">🎵 Listen to Audio Track:</span>
+                            <audio controls style="width: 100%; max-width: 450px; display: block;">
+                                <source src="{{ item.media_url }}" type="audio/mpeg">
+                                <source src="{{ item.media_url }}" type="audio/ogg">
+                                Your browser does not support the audio element.
+                            </audio>
+                        </div>
+                    {% elif item.media_type == 'video_file' %}
+                        <div style="margin-top: 15px; padding-top: 12px; border-top: 1px dashed var(--border-color);">
+                            <span style="font-size: 13px; color: var(--text-muted); display: block; margin-bottom: 6px; font-weight: 600;">📹 Play Video Stream:</span>
+                            <video controls style="width: 100%; max-width: 500px; border-radius: 6px; display: block; background-color: #000000;">
+                                <source src="{{ item.media_url }}" type="video/mp4">
+                                <source src="{{ item.media_url }}" type="video/ogg">
+                                Your browser does not support the video element.
+                            </video>
+                        </div>
+                    {% endif %}
+                    
                 </div>
             {% endfor %}
         </div>
 
-        <!-- Correctly Parsed Numeric Pagination Logic Blocks -->
+        <!-- Numeric Pagination Engine -->
         {% if total_pages > 1 %}
         <div class="pagination-container">
             <div class="pagination">
                 
-                <!-- ≪ Navigation Jump Link hooks -->
+                <!-- ≪ First Page Link blocks -->
                 {% if page > 1 %}
                     <a class="btn" href="/?q={{ query }}&page=1&per_page={{ per_page }}" title="First Page">≪</a>
                     <a class="btn" href="/?q={{ query }}&page={{ page - 1 }}&per_page={{ per_page }}">←</a>
@@ -219,7 +247,7 @@
                     <span class="btn disabled" style="color: #c4c7c9; border-color: #e8eaed; cursor: not-allowed; background: #fafafa;">←</span>
                 {% endif %}
                 
-                <!-- Clickable Page Number Generation -->
+                <!-- Clickable Page Number Blocks -->
                 {% for p in range(1, total_pages + 1) %}
                     {% if p == page %}
                         <span class="btn" style="background: var(--primary); color: white; border-color: var(--primary); cursor: default;">{{ p }}</span>
@@ -228,7 +256,7 @@
                     {% endif %}
                 {% endfor %}
                 
-                <!-- ≫ Navigation Jump Link hooks -->
+                <!-- ≫ Last Page Link blocks -->
                 {% if page < total_pages %}
                     <a class="btn" href="/?q={{ query }}&page={{ page + 1 }}&per_page={{ per_page }}">→</a>
                     <a class="btn" href="/?q={{ query }}&page={{ total_pages }}&per_page={{ per_page }}" title="Last Page">≫</a>
@@ -239,23 +267,22 @@
                 
             </div>
             
-            <div class="page-indicator">
+            <div class="page-indicator" style="margin-top: 10px;">
                 Page {{ page }} of {{ total_pages }}
             </div>
         </div>
         {% endif %}
         
-        {% elif error_message %}
-        <!-- Clear diagnostic warning reporting layout box -->
+    {% elif error_message %}
+        <!-- Safety Alert Indicator Notification Grid -->
         <div class="result-item" style="text-align: center; color: #d93025; background: #fce8e6; border: 1px solid #fad2cf; margin-top: 20px;">
             <strong>System Notification:</strong> {{ error_message }}
         </div>
     {% elif query %}
         <div class="result-item" style="text-align: center; color: var(--text-muted); margin-top: 20px;">
-            No records matched your search phrase.
+            No records matched your specific search criteria.
         </div>
     {% endif %}
-
 
 </body>
 </html>

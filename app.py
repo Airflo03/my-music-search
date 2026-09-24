@@ -8,20 +8,15 @@ load_dotenv()
 
 app = Flask(__name__)
 
-# Fetch environment values
 GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY")
 GOOGLE_CX = os.environ.get("GOOGLE_CX")
 
 def fetch_google_search(query, start_index=1):
-    """
-    Connects to Google JSON API and safely intercepts setup failures or proxy errors.
-    """
-    # Defensive programming block: Alert developer if variables are missing
     if not GOOGLE_API_KEY or not GOOGLE_CX:
         return {
             "items": [], 
             "total_results": 0, 
-            "error_msg": "Missing API Key or Search Engine ID inside your Render Environment Settings tab."
+            "error_msg": "Missing API configuration keys in Render environment dashboard panels."
         }
 
     url = "https://googleapis.com"
@@ -36,13 +31,12 @@ def fetch_google_search(query, start_index=1):
     try:
         response = requests.get(url, params=params, timeout=8)
         
-        # Capture authorization blocks or billing validation errors safely
         if response.status_code != 200:
-            return {
-                "items": [], 
-                "total_results": 0, 
-                "error_msg": f"Google Server rejected request with Status Code: {response.status_code}. Verify credentials."
-            }
+            try:
+                msg = response.json().get("error", {}).get("message", "Rejected parameter error validation.")
+                return {"items": [], "total_results": 0, "error_msg": f"Google API Error {response.status_code}: {msg}"}
+            except Exception:
+                return {"items": [], "total_results": 0, "error_msg": f"Google Connection Error (Status {response.status_code})."}
             
         data = response.json()
         search_items = data.get("items", [])
@@ -57,7 +51,6 @@ def fetch_google_search(query, start_index=1):
             media_type = None
             media_url = None
             
-            # Auto-extract active YouTube video parameters safely
             if "youtube.com" in href or "youtu.be" in href:
                 media_type = "youtube"
                 if "v=" in href:
@@ -76,9 +69,8 @@ def fetch_google_search(query, start_index=1):
             })
             
         return {"items": parsed_results, "total_results": total_results, "error_msg": None}
-        
     except Exception as e:
-        return {"items": [], "total_results": 0, "error_msg": f"Connection exception: {str(e)}"}
+        return {"items": [], "total_results": 0, "error_msg": f"Network processing fault: {str(e)}"}
 
 @app.route('/', methods=['GET'])
 def search_page():
@@ -99,37 +91,21 @@ def search_page():
 
     if query:
         api_start_index = ((page - 1) * per_page) + 1
-        
         search_package = fetch_google_search(query, start_index=api_start_index)
-
-        response = requests.get(url, params=params, timeout=8)
         
-        # Enhanced logging block to see Google's exact feedback
-        if response.status_code != 200:
-            try:
-                error_details = response.json().get("error", {}).get("message", "No clear message provided.")
-                print(f"--- GOOGLE REJECTION TRACE ---")
-                print(f"Status Code: {response.status_code}")
-                print(f"Reason: {error_details}")
-                print(f"------------------------------")
-                return {"items": [], "total_results": 0, "error_msg": f"Google Server error ({response.status_code}): {error_details}"}
-            except Exception:
-                return {"items": [], "total_results": 0, "error_msg": f"Google Server rejected request with Status Code: {response.status_code}."}
-        # END Enhanced logging block
-
         results = search_package["items"]
         total_items = search_package["total_results"]
         error_message = search_package["error_msg"]
         
         if total_items > 100:
-            total_items = 100 # Google API max standard pagination restriction capping limit
+            total_items = 100 
             
         if total_items > 0:
             total_pages = math.ceil(total_items / per_page)
             current_start = api_start_index
             current_end = min(api_start_index + len(results) - 1, total_items)
         elif not error_message and total_items == 0:
-            error_message = "Google returned zero results. Make sure 'Search the entire web' is turned ON in your Google control panel."
+            error_message = "Google parameters matched 0 listings. Turn 'Search the entire web' to ON."
 
     return render_template('search.html', query=query, results=results, page=page, 
                            per_page=per_page, total_pages=total_pages, total_items=total_items,
