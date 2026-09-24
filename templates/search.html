@@ -245,11 +245,17 @@
         </div>
         {% endif %}
         
+        {% elif error_message %}
+        <!-- Clear diagnostic warning reporting layout box -->
+        <div class="result-item" style="text-align: center; color: #d93025; background: #fce8e6; border: 1px solid #fad2cf; margin-top: 20px;">
+            <strong>System Notification:</strong> {{ error_message }}
+        </div>
     {% elif query %}
         <div class="result-item" style="text-align: center; color: var(--text-muted); margin-top: 20px;">
-            No records matched your specific search criteria.
+            No records matched your search phrase.
         </div>
     {% endif %}
+
 
 </body>
 </html>
